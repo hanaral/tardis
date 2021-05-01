@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2020 Marco Betschart (http://chasinglogic.io)
+* Copyright (c) 2020 Mathew Robinson (http://chasinglogic.io)
 *
 * This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public
@@ -21,6 +21,23 @@
 
 // Common business logic which does not directly change display properties.
 public class Tardis.Utils {
+
+    public static async Mount? get_mount (GLib.Volume volume) {
+        var mount = volume.get_mount ();
+
+        // If it was null try to mount it
+        if (mount == null) {
+            try {
+                yield volume.mount (MountMountFlags.NONE, null);
+            } catch (GLib.Error e) {
+                return null;
+            }
+
+            mount = volume.get_mount ();
+        }
+
+        return mount;
+    }
 
     public static bool array_not_equal (string[] arr1, string[] arr2) {
         if (arr1.length != arr2.length) {
@@ -63,5 +80,16 @@ public class Tardis.Utils {
         }
 
         return new_list;
+    }
+
+    public static string display_name (GLib.Volume volume) {
+        var volume_name = volume.get_name ();
+        var drive = volume.get_drive ();
+
+        if (drive == null) {
+            return volume_name;
+        }
+
+        return @"$volume_name ($(drive.get_name ()))";
     }
 }

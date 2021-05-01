@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2020 Marco Betschart (http://chasinglogic.io)
+* Copyright (c) 2020 Mathew Robinson (http://chasinglogic.io)
 *
 * This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public
@@ -24,7 +24,7 @@ using Gtk;
 public class Tardis.App : Gtk.Application {
 
     public static string id = "com.github.chasinglogic.tardis";
-    public static string version = "1.0.0";
+    public static string version = "1.2.0";
 
     public static int default_window_height = 512;
     public static int default_window_width = 700;
@@ -87,7 +87,7 @@ public class Tardis.App : Gtk.Application {
 
         target_manager = new Tardis.BackupTargetManager (volume_monitor, settings);
         backup_status = new Tardis.BackupStatus (target_manager);
-        main_view = new Tardis.Widgets.MainView (target_manager);
+        main_view = new Tardis.Widgets.MainView (target_manager, volume_monitor);
         headerbar = new Tardis.Widgets.HeaderBar (volume_monitor, target_manager, settings);
 
         error_msg_label = new Gtk.Label (null);
@@ -143,10 +143,6 @@ public class Tardis.App : Gtk.Application {
         window.size_allocate.connect (() => { on_resize (); });
 
         // Cross the Signals
-        headerbar.target_created.connect ((target) => {
-            target_manager.add_target (target);
-        });
-
         backup_status.target_is_backed_up.connect ((target) => {
             main_view.set_status (target.id, DriveStatusType.SAFE);
         });
@@ -175,6 +171,10 @@ public class Tardis.App : Gtk.Application {
             main_view.set_all (DriveStatusType.IN_PROGRESS);
         });
 
+        main_view.volume_added.connect ((volume) => {
+                target_manager.add_volume.begin (volume);
+        });
+
         main_view.drive_removed.connect ((target) => {
             target_manager.remove_target (target);
         });
@@ -183,10 +183,12 @@ public class Tardis.App : Gtk.Application {
             target_manager.restore_from.begin (target);
         });
 
-        target_manager.target_added.connect ((target) => {
+        target_manager.target_added.connect ((target, start_backup) => {
             backup_status.get_backup_status.begin ();
             main_view.add_target (target);
-            target_manager.backup_all.begin ();
+            if (start_backup) {
+                target_manager.backup_all.begin ();
+            }
         });
 
         target_manager.backup_started.connect ((target) => {

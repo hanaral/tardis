@@ -8,7 +8,7 @@ public class Tardis.Onboarding : Gtk.Window {
         title_label.halign = Gtk.Align.CENTER;
 
         var description_label = new Gtk.Label (
-            _("At it's core Tardis manages backup targets. You can have " +
+            _("At its core Tardis manages backup targets. You can have " +
             "multiple backup targets in Tardis. But to start, let's " +
             "add a single drive. Plug in the storage device you " +
             "would like to store backups on and select it from the " +
@@ -38,7 +38,7 @@ public class Tardis.Onboarding : Gtk.Window {
         var finish_button = new Gtk.Button.with_label (_("Start Protecting My Data"));
         finish_button.get_style_context ().add_class (Gtk.STYLE_CLASS_SUGGESTED_ACTION);
         finish_button.clicked.connect (() => {
-            app.target_manager.add_target (add_backup_selector.create_backup_target ());
+            app.target_manager.add_volume.begin (add_backup_selector.get_volume ());
             destroy ();
         });
         finish_button.grab_focus ();

@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2020 Marco Betschart (http://chasinglogic.io)
+* Copyright (c) 2020 Mathew Robinson (http://chasinglogic.io)
 *
 * This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public
@@ -44,7 +44,7 @@ public class Tardis.Widgets.DriveSelector : Gtk.ComboBoxText {
         var backup_targets = backup_target_manager.get_target_ids ();
 
         foreach (Volume vol in volumes) {
-            var name = vol.get_drive ().get_name ();
+            var name = Utils.display_name (vol);
             var uuid = vol.get_uuid ();
 
             if (uuid == null) {
@@ -60,10 +60,9 @@ public class Tardis.Widgets.DriveSelector : Gtk.ComboBoxText {
         }
     }
 
-    public BackupTarget create_backup_target () {
+    public GLib.Volume get_volume () {
         var name = get_active_text ();
         var uuid = drive_map.@get (name);
-        var volume = vm.get_volume_for_uuid (uuid);
-        return new Tardis.BackupTarget.from_volume (volume);
+        return vm.get_volume_for_uuid (uuid);
     }
 }
